@@ -27,6 +27,16 @@ class UserController extends Controller
         ], Response::HTTP_OK);
     }
 
+    public function authUser()
+    {
+
+        $auth_user = Auth::user();
+
+        return response()->json([
+            'user' => $auth_user,
+        ], Response::HTTP_OK);
+    }
+
     /**
      * Store a newly created resource in storage.
      *

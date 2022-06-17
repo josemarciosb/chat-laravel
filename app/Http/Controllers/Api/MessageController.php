@@ -2,24 +2,27 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Chat\SendMessage;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Symfony\Component\HttpFoundation\Response;
 
 class MessageController extends Controller
 {
 
-    public function listMessages(User $user){
+    public function listMessages(User $user)
+    {
 
         $userFrom = Auth::user()->id;
         $userTo = $user->id;
 
-        $messages = Message::where([['from_user_id', $userFrom],['to_user_id', $userTo]])
-        ->orWhere([['to_user_id', $userFrom], ['from_user_id', $userTo]])
-        ->orderBy('created_at', 'ASC')->get();
+        $messages = Message::where([['from_user_id', $userFrom], ['to_user_id', $userTo]])
+            ->orWhere([['to_user_id', $userFrom], ['from_user_id', $userTo]])
+            ->orderBy('created_at', 'ASC')->get();
 
         return response()->json([
             'messages' => $messages
@@ -48,13 +51,24 @@ class MessageController extends Controller
 
         $message->from_user_id = Auth::user()->id;
         $message->to_user_id = $request->to;
-        $message->content = filter_var($request->content, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $message->content = $request->content;
 
         $message->save();
 
-        return response()->json([
-            'message' => $message
-        ], Response::HTTP_OK);
+        try {
+            Event::dispatch(new SendMessage($message));
+
+
+            return response()->json([
+                'message' => $message
+            ], Response::HTTP_OK);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => $e
+            ], Response::HTTP_OK);
+        }
     }
 
     /**

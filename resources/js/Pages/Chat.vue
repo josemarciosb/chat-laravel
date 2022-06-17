@@ -28,7 +28,8 @@ import axios from 'axios';
                                 class="p-6 text-lg text-gray-600 leading-7 font-semibold border-b border-gray-200 hover:bg-gray-300 hover:bg-opacity-50 hover:cursor-pointer">
                                 <p class="flex items-center">
                                     {{ user.name }}
-                                    <span class="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>
+
+                                    <span v-if="user.notification" class="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>
                                 </p>
                             </li>
                         </ul>
@@ -73,6 +74,7 @@ import axios from 'axios';
 </template>
 
 <script>
+    import Vue from 'vue';
 
     export default {
         components: {
@@ -83,7 +85,8 @@ import axios from 'axios';
                 users: [],
                 messages: [],
                 userActive: null,
-                message: ''
+                message: '',
+                user: null
             }
         },
         methods: {
@@ -112,19 +115,50 @@ import axios from 'axios';
                     'to': this.userActive.id
 
                 }).then(response => {
+
                     this.messages.push(response.data.message)
 
                     this.message = '';
                 })
 
+
                 this.scrollToBotton()
 
             }
         },
-        mounted() {
+        async mounted()  {
             axios.get('api/users').then(response => {
                 this.users = response.data.users
             })
+
+            await axios.get('api/authUser').then(response => {
+                this.user = response.data.user
+                // console.log(this.user.id)
+            })
+
+            Echo.private(`user.${this.user.id}`).listen('.SendMessage', async (e) => {
+
+                // console.log('xxxxx' . e)
+
+                if (this.userActive && this.userActive.id === e.message.from_user_id) {
+                    await this.messages.push(e.message)
+
+                    this.scrollToBotton()
+                } else {
+                    const user = this.users.filter((user) => {
+                        if (user.id === e.message.from) {
+                            return user
+                        }
+                    })
+
+                    if (user) {
+                        // user.notification = true
+                        Vue.set(user[0], 'notification', true)
+                    }
+                }
+
+            })
+
         }
     }
 </script>

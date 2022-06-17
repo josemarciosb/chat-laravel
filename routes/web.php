@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PusherController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -24,3 +26,10 @@ Route::middleware(['auth:sanctum',config('jetstream.auth_session'),'verified'])-
     Route::get('/chat', [PageController::class, 'chat'])->name('chat');
 
 });
+
+// Route::post('/pusher/auth', [PusherController::class, 'pusherAuth'])
+// ->middleware('auth:sanctum');
+
+// Route::post('/broadcasting/auth', function () {
+//     return Auth::user();
+//  });
