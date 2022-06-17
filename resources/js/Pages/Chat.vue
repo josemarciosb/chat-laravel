@@ -74,8 +74,6 @@ import axios from 'axios';
 </template>
 
 <script>
-    import Vue from 'vue';
-
     export default {
         components: {
             AppLayout,
@@ -104,6 +102,18 @@ import axios from 'axios';
                 await axios.get(`api/messages/${user_id}`).then(response => {
                     this.messages = response.data.messages
                 })
+
+                const user = this.users.filter((user) => {
+                        if (user.id === user_id) {
+                            return user
+                        }
+                    })
+
+                if (user) {
+                    user[0].notification = false
+
+                        // Vue.set(user[0], 'notification', true)
+                }
 
                 this.scrollToBotton()
 
@@ -146,14 +156,15 @@ import axios from 'axios';
                     this.scrollToBotton()
                 } else {
                     const user = this.users.filter((user) => {
-                        if (user.id === e.message.from) {
+                        if (user.id === e.message.from_user_id) {
                             return user
                         }
                     })
 
                     if (user) {
-                        // user.notification = true
-                        Vue.set(user[0], 'notification', true)
+                        user[0].notification = true
+
+                        // Vue.set(user[0], 'notification', true)
                     }
                 }
 

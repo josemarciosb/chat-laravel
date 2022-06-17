@@ -15,7 +15,8 @@ class BroadcastServiceProvider extends ServiceProvider
     public function boot()
     {
         Broadcast::routes();
-        // Broadcast::routes(['middleware' => ['auth:sanctum']]);
+        // Broadcast::routes(['middleware' => ['auth:sanctum',config('jetstream.auth_session'),'verified']]);
+
 
 
         require base_path('routes/channels.php');
