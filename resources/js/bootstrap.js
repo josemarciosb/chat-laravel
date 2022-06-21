@@ -28,7 +28,13 @@ window.Echo = new Echo({
     wsPort: 6001,
     forceTLS: false,
     disableStats: true,
-
+    auth: {
+        withCredentials: true,
+        headers: {
+            'X-CSRF-TOKEN': window.Laravel.csrfToken
+        }
+    }
 });
+
 
 Pusher.logToConsole = true;

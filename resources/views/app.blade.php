@@ -25,3 +25,10 @@
         @endenv
     </body>
 </html>
+
+
+<script>
+    window.Laravel = {
+        csrfToken: "{{ csrf_token() }}"
+    }
+</script>
